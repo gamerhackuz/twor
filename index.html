@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tezkor Matematika</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0f172a; min-height: 100vh; display: flex; justify-content: center; align-items: center; color: white; padding: 20px; }
+        .card { background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #60a5fa; margin-bottom: 20px; }
+        .question { font-size: 42px; font-weight: bold; margin: 15px 0; min-height: 60px; }
+        input { width: 100%; padding: 12px; font-size: 24px; text-align: center; background: #0f172a; border: 2px solid #334155; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: #60a5fa; }
+        button { width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #059669; }
+        .stats { display: flex; justify-content: space-between; margin-top: 15px; color: #94a3b8; font-size: 14px; }
+        .difficulty { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; }
+        .diff-btn { padding: 6px 12px; border: 1px solid #475569; background: transparent; color: #cbd5e1; border-radius: 6px; cursor: pointer; }
+        .diff-btn.active { background: #60a5fa; color: #0f172a; border-color: #60a5fa; }
+        .feedback { height: 20px; font-weight: bold; margin-bottom: 10px; }
+        .feedback.correct { color: #10b981; }
+        .feedback.wrong { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🧠 Tezkor Matematika</h2>
+        <div class="difficulty">
+            <button class="diff-btn active" onclick="setDiff(1, this)">Oson</button>
+            <button class="diff-btn" onclick="setDiff(2, this)">O'rta</button>
+            <button class="diff-btn" onclick="setDiff(3, this)">Qiyin</button>
+        </div>
+        <div class="question" id="question">5 + 3 = ?</div>
+        <div class="feedback" id="feedback"></div>
+        <input type="number" id="answer" placeholder="Javob" autocomplete="off">
+        <button onclick="checkAnswer()">Tekshirish ⏎</button>
+        <div class="stats">
+            <span>✅ To'g'ri: <b id="correct">0</b></span>
+            <span>🔥 Ketma-ket: <b id="streak">0</b></span>
+            <span>🎯 Aniqlik: <b id="accuracy">100%</b></span>
+        </div>
+    </div>
+
+    <script>
+        let diff = 1, correct = 0, total = 0, streak = 0, currentAns = 0;
+        const ops = ['+', '-', '×'];
+
+        function generate() {
+            const range = [diff === 1 ? 10 : diff === 2 ? 50 : 100][0];
+            const op = ops[Math.floor(Math.random() * (diff === 3 ? 3 : 2))];
+            let a = Math.floor(Math.random() * range) + 1;
+            let b = Math.floor(Math.random() * range) + 1;
+
+            if (op === '-') { if (a < b) [a, b] = [b, a]; }
+            if (op === '+') currentAns = a + b;
+            if (op === '-') currentAns = a - b;
+            if (op === '×') currentAns = a * b;
+
+            document.getElementById('question').textContent = `${a} ${op} ${b} = ?`;
+            document.getElementById('answer').value = '';
+            document.getElementById('answer').focus();
+        }
+
+        function checkAnswer() {
+            const val = parseInt(document.getElementById('answer').value);
+            if (isNaN(val)) return;
+            total++;
+            const fb = document.getElementById('feedback');
+            
+            if (val === currentAns) {
+                correct++; streak++;
+                fb.textContent = "✅ To'g'ri!";
+                fb.className = "feedback correct";
+            } else {
+                streak = 0;
+                fb.textContent = `❌ Noto'g'ri. Javob: ${currentAns}`;
+                fb.className = "feedback wrong";
+            }
+            
+            document.getElementById('correct').textContent = correct;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('accuracy').textContent = Math.round((correct/total)*100) + '%';
+            setTimeout(generate, 800);
+        }
+
+        function setDiff(d, btn) {
+            diff = d;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            generate();
+        }
+
+        document.getElementById('answer').addEventListener('keypress', e => { if(e.key==='Enter') checkAnswer(); });
+        generate();
+    </script>
+</body>
+</html>
